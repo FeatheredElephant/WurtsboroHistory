@@ -1,10 +1,24 @@
 const express = require("express");
+const tag = require("../models/tag");
 const router = express.Router();
 const Tag = require("../models/tag");
 
 //All Tags Route
-router.get("/", (req, res) => {
-  res.render("tags/index");
+router.get("/", async (req, res) => {
+  let searchOptions = {};
+  if (req.query.name != null && req.query.name !== "") {
+    searchOptions.name = new RegExp(req.query.name, "i");
+  }
+  try {
+    const tags = await Tag.find(searchOptions);
+    res.render("tags/index", {
+      tags: tags,
+      searchOptions: req.query,
+    });
+  } catch {
+    res.redirect("/");
+    console.log("Database could not be reached.");
+  }
 });
 
 //New Tag Route
